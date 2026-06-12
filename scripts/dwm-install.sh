@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-XI="sudo xbps-install"
+XI="sudo xbps-install -y"
 
 xi_install_safe() {
 	local pkg
@@ -44,6 +44,25 @@ configure_pipewire_session() {
 	fi
 }
 
+install_or_build_suckless() {
+	local package="$1"
+	local repo_url="$2"
+	local build_dir="/tmp/${package}-build"
+
+	if xbps-query -Rs "^${package}$" >/dev/null 2>&1; then
+		$XI "$package"
+		return 0
+	fi
+
+	echo "Package ${package} not found in XBPS, building from source..."
+	rm -rf "$build_dir"
+	git clone --depth 1 "$repo_url" "$build_dir"
+	pushd "$build_dir" >/dev/null || return 1
+	sudo make clean install
+	popd >/dev/null || return 1
+	rm -rf "$build_dir"
+}
+
 echo "Ensuring build dependencies are available..."
 $XI base-devel
 $XI git
@@ -51,42 +70,36 @@ $XI cmake
 $XI meson
 $XI pkg-config
 
-echo "Installing Sway core components..."
-$XI sway
-$XI swaybg
-$XI swayidle
-$XI swaylock
-$XI xdg-desktop-portal
-$XI xdg-desktop-portal-wlr
+echo "Installing DWM core components..."
+install_or_build_suckless dwm https://git.suckless.org/dwm
+install_or_build_suckless dmenu https://git.suckless.org/dmenu
+install_or_build_suckless st https://git.suckless.org/st
+xi_install_safe slstatus sxhkd picom
 
-echo "Installing Wayland bar/launcher stack..."
-$XI Waybar
-xi_install_safe nwg-drawer
-$XI fuzzel
-$XI wlogout
-$XI dunst
-$XI libnotify
-xi_install_safe notification-daemon
-xi_install_safe swaync
+echo "Installing X11 utilities used by DWM config..."
+$XI xorg-server
+$XI xrandr
+$XI xinput
+$XI xsetroot
+$XI xrdb
+$XI setxkbmap
+$XI xev
+$XI numlockx
+$XI xclip
+$XI xdotool
+$XI feh
 
-echo "Installing clipboard and screenshot tools..."
-$XI wl-clipboard
-$XI cliphist
-$XI grim
-$XI slurp
-$XI brightnessctl
+echo "Installing launcher, wallpaper, and screenshot tools..."
+xi_install_safe rofi libnotify
+$XI flameshot
 
-echo "Installing auth/session helpers..."
-$XI polkit-gnome
-$XI gnome-keyring
-
-echo "Installing terminal and file tools..."
+echo "Installing terminal, editor, and font tools..."
 $XI kitty
+$XI neovim
 $XI tmux
-$XI thunar
-$XI thunar-volman
+xi_install_safe font-jetbrains-mono-nerd
 
-echo "Installing audio stack..."
+echo "Installing audio and brightness controls..."
 $XI pipewire
 $XI pipewire-pulse
 $XI alsa-pipewire
@@ -96,19 +109,15 @@ $XI wireplumber-elogind
 $XI pavucontrol
 $XI pamixer
 $XI playerctl
-$XI easyeffects
+xi_install_safe easyeffects brightnessctl
 $XI rtkit
 
-echo "Installing network and bluetooth utilities..."
+echo "Installing auth/session helpers..."
 $XI NetworkManager
 $XI network-manager-applet
-$XI bluez
-$XI bluetuith
-
-echo "Installing customization utilities..."
-$XI nwg-look
-$XI dconf
+$XI polkit-gnome
+$XI gnome-keyring
 
 configure_pipewire_session
 
-echo -e "\nAll Sway packages installed successfully!"
+echo -e "\nAll DWM packages installed successfully!"

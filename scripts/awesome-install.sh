@@ -51,42 +51,37 @@ $XI cmake
 $XI meson
 $XI pkg-config
 
-echo "Installing Sway core components..."
-$XI sway
-$XI swaybg
-$XI swayidle
-$XI swaylock
-$XI xdg-desktop-portal
-$XI xdg-desktop-portal-wlr
-
-echo "Installing Wayland bar/launcher stack..."
-$XI Waybar
-xi_install_safe nwg-drawer
-$XI fuzzel
-$XI wlogout
+echo "Installing Awesome core components..."
+$XI awesome
+$XI picom
 $XI dunst
-$XI libnotify
-xi_install_safe notification-daemon
-xi_install_safe swaync
 
-echo "Installing clipboard and screenshot tools..."
-$XI wl-clipboard
-$XI cliphist
-$XI grim
-$XI slurp
-$XI brightnessctl
+echo "Installing X11 utilities used by Awesome config..."
+$XI xorg-server
+$XI xrandr
+$XI xinput
+$XI xsetroot
+$XI xrdb
+$XI setxkbmap
+$XI xev
+$XI numlockx
+$XI xterm
+$XI xclip
+$XI xdotool
+xi_install_safe arandr
 
-echo "Installing auth/session helpers..."
-$XI polkit-gnome
-$XI gnome-keyring
+echo "Installing launcher, wallpaper, and notification tools..."
+$XI rofi
+$XI feh
+xi_install_safe nitrogen lxappearance libnotify
 
-echo "Installing terminal and file tools..."
+echo "Installing terminal, editor, and font tools..."
 $XI kitty
+$XI neovim
 $XI tmux
-$XI thunar
-$XI thunar-volman
+xi_install_safe font-jetbrains-mono-nerd
 
-echo "Installing audio stack..."
+echo "Installing audio and brightness controls..."
 $XI pipewire
 $XI pipewire-pulse
 $XI alsa-pipewire
@@ -96,19 +91,15 @@ $XI wireplumber-elogind
 $XI pavucontrol
 $XI pamixer
 $XI playerctl
-$XI easyeffects
+xi_install_safe easyeffects brightnessctl
 $XI rtkit
 
-echo "Installing network and bluetooth utilities..."
+echo "Installing auth/session helpers..."
 $XI NetworkManager
 $XI network-manager-applet
-$XI bluez
-$XI bluetuith
-
-echo "Installing customization utilities..."
-$XI nwg-look
-$XI dconf
+$XI polkit-gnome
+$XI gnome-keyring
 
 configure_pipewire_session
 
-echo -e "\nAll Sway packages installed successfully!"
+echo -e "\nAll Awesome packages installed successfully!"
